@@ -163,8 +163,8 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.get_prev, { desc = 'Go to previous [D]iagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.get_next, { desc = 'Go to next [D]iagnostic message' })
+-- vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
+-- vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -380,6 +380,10 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+        },
+        defaults = {
+          sorting_strategy = 'descending',
+          path_display = { 'truncate' },
         },
       }
 
@@ -893,8 +897,50 @@ require('lazy').setup({
     },
     config = function()
       local nt = require 'neotest'
-      vim.keymap.set('n', '<CTRL><SHIFT><F10>', nt.run.run(), { desc = 'Run nearest test' })
+      nt.setup {
+        adapters = {
+          require 'neotest-jest' {
+            jestCommand = 'npm test',
+          },
+        },
+      }
+      vim.keymap.set('n', '<F10>', '<cmd>lua require("neotest").run.run()<cr>', { desc = 'Run nearest test' })
     end,
+  },
+
+  -- DAP
+  {
+    'mfussenegger/nvim-dap',
+    config = function()
+      require('dap').adapters['pwa-node'] = {
+        type = 'server',
+        host = 'localhost',
+        port = '${port}',
+        executable = {
+          command = 'node',
+          -- 💀 Make sure to update this path to point to your installation
+          args = { '/home/jakubm/dap/js-debug/src/dapDebugServer.js', '${port}' },
+        },
+      }
+
+      local jsAndTsDapConfig = {
+        type = 'pwa-node',
+        request = 'launch',
+        name = 'Launch file',
+        program = '${file}',
+        cwd = '${workspaceFolder}',
+      }
+
+      require('dap').configurations.javascript = { jsAndTsDapConfig }
+      require('dap').configurations.typescript = { jsAndTsDapConfig }
+
+      vim.keymap.set('n', '<F5>', '<cmd>lua require("dap").continue()<cr>', { desc = 'Run, continue debbuging' })
+      vim.keymap.set('n', '<F4>', '<cmd>lua require("dap").toggle_breakpoint()<cr>', { desc = 'Run, continue debbuging' })
+    end,
+  },
+  {
+    'nvim-telescope/telescope-file-browser.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
