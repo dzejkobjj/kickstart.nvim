@@ -144,7 +144,7 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -384,6 +384,13 @@ require('lazy').setup({
         defaults = {
           sorting_strategy = 'descending',
           path_display = { 'truncate' },
+        },
+        pickers = {
+          find_files = {
+            hidden = true,
+            no_ignore = true,
+            follow = true,
+          },
         },
       }
 
@@ -642,6 +649,24 @@ require('lazy').setup({
             require('lspconfig')[server_name].setup(server)
           end,
         },
+      }
+
+      local lspconfig = require 'lspconfig'
+      local configs = require 'lspconfig/configs'
+
+      if not configs.golangcilsp then
+        configs.golangcilsp = {
+          default_config = {
+            cmd = { 'golangci-lint-langserver' },
+            root_dir = lspconfig.util.root_pattern('.git', 'go.mod'),
+            init_options = {
+              command = { 'golangci-lint', 'run', '--enable-all', '--disable', 'lll', '--out-format', 'json', '--issues-exit-code=1' },
+            },
+          },
+        }
+      end
+      lspconfig.golangci_lint_ls.setup {
+        filetypes = { 'go', 'gomod' },
       }
     end,
   },
@@ -911,8 +936,16 @@ require('lazy').setup({
   -- DAP
   {
     'mfussenegger/nvim-dap',
+    dependencies = {
+      'leoluz/nvim-dap-go',
+      'rcarriga/nvim-dap-ui',
+      'nvim-neotest/nvim-nio',
+    },
     config = function()
-      require('dap').adapters['pwa-node'] = {
+      local dap = require 'dap'
+      local ui = require 'dapui'
+
+      dap.adapters['pwa-node'] = {
         type = 'server',
         host = 'localhost',
         port = '${port}',
@@ -931,8 +964,24 @@ require('lazy').setup({
         cwd = '${workspaceFolder}',
       }
 
-      require('dap').configurations.javascript = { jsAndTsDapConfig }
-      require('dap').configurations.typescript = { jsAndTsDapConfig }
+      dap.configurations.javascript = { jsAndTsDapConfig }
+      dap.configurations.typescript = { jsAndTsDapConfig }
+
+      require('dap-go').setup()
+      require('dapui').setup()
+
+      dap.listeners.before.attach.dapui_config = function()
+        ui.open()
+      end
+      dap.listeners.before.launch.dapui_config = function()
+        ui.open()
+      end
+      dap.listeners.before.event_terminated.dapui_config = function()
+        ui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        ui.close()
+      end
 
       vim.keymap.set('n', '<F5>', '<cmd>lua require("dap").continue()<cr>', { desc = 'Run, continue debbuging' })
       vim.keymap.set('n', '<F4>', '<cmd>lua require("dap").toggle_breakpoint()<cr>', { desc = 'Run, continue debbuging' })
