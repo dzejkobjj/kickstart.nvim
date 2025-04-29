@@ -143,8 +143,8 @@ vim.opt.splitbelow = true
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
-vim.opt.list = true
-vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣' }
+vim.opt.list = false
+vim.opt.listchars = { trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -154,6 +154,11 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 20
+
+vim.opt.tabstop = 8
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+-- vim.opt.expandtab = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -297,19 +302,19 @@ require('lazy').setup({
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-        ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-        ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', desc = '[C]ode', group = 'which_key_ignore' },
+        { '<leader>d', desc = '[D]ocument', group = 'which_key_ignore' },
+        { '<leader>r', desc = '[R]ename', group = 'which_key_ignore' },
+        { '<leader>s', desc = '[S]earch', group = 'which_key_ignore' },
+        { '<leader>w', desc = '[W]orkspace', group = 'which_key_ignore' },
+        { '<leader>t', desc = '[T]oggle', group = 'which_key_ignore' },
+        { '<leader>h', desc = 'Git [H]unk', group = 'which_key_ignore' },
       }
       -- visual mode
-      require('which-key').register({
-        ['<leader>h'] = { 'Git [H]unk' },
-      }, { mode = 'v' })
+      require('which-key').add {
+        { '<leader>h', desc = 'Git [H]unk', group = 'which_key_ignore', mode = 'v' },
+      }
     end,
   },
 
@@ -387,9 +392,9 @@ require('lazy').setup({
         },
         pickers = {
           find_files = {
-            hidden = true,
-            no_ignore = true,
-            follow = true,
+            -- hidden = true,
+            -- no_ignore = true,
+            -- follow = true,
           },
         },
       }
@@ -603,7 +608,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {},
+        -- tsserver = {},
         --
 
         lua_ls = {
