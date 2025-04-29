@@ -142,17 +142,13 @@ vim.o.timeoutlen = 300
 vim.o.splitright = true
 vim.o.splitbelow = true
 
--- Sets how neovim will display certain whitespace characters in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
---
---
+
 --  Notice listchars is set using `vim.opt` instead of `vim.o`.
 --  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
 --   See `:help lua-options`
 --   and `:help lua-options-guide`
-vim.o.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.list = false
+vim.opt.listchars = { trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
@@ -166,6 +162,11 @@ vim.o.cursorline = true
 vim.o.confirm = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 20
+
+vim.opt.tabstop = 8
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+-- vim.opt.expandtab = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -444,9 +445,9 @@ require('lazy').setup({
         },
         pickers = {
           find_files = {
-            hidden = true,
-            no_ignore = true,
-            follow = true,
+            -- hidden = true,
+            -- no_ignore = true,
+            -- follow = true,
           },
         },
       }
