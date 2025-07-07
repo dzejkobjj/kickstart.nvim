@@ -142,7 +142,6 @@ vim.o.timeoutlen = 300
 vim.o.splitright = true
 vim.o.splitbelow = true
 
-
 --  Notice listchars is set using `vim.opt` instead of `vim.o`.
 --  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
 --   See `:help lua-options`
@@ -163,10 +162,10 @@ vim.o.confirm = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 20
 
-vim.opt.tabstop = 8
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
--- vim.opt.expandtab = true
+vim.o.tabstop = 8
+vim.o.softtabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -185,6 +184,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('n', '<leader>qw', '<cmd>bd<CR>') -- Close current buffer
 vim.keymap.set('n', '<leader>tb', '<cmd>Telescope buffers<CR>') -- Show open buffers
 vim.keymap.set('n', '<leader>tr', '<cmd>Telescope resume<CR>') -- resume telescope search
+vim.keymap.set('n', '<leader>bp', '<cmd>b#<CR>') -- previous buffer
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -569,27 +569,27 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('<leader>ca', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gi', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -705,7 +705,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -713,7 +713,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
 
         -- THIS IS OLD CONFIG
         -- But for many setups, the LSP (`tsserver`) will work just fine
@@ -827,6 +827,7 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { 'pretteird' },
       },
     },
   },
@@ -889,7 +890,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'enter',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -904,7 +905,7 @@ require('lazy').setup({
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = { auto_show = true, auto_show_delay_ms = 500 },
       },
       -- Accept ([y]es) the completion.
       --  This will auto-import if your LSP supports it.
@@ -913,9 +914,9 @@ require('lazy').setup({
 
       -- If you prefer more traditional completion keymaps,
       -- you can uncomment the following lines
-      --['<CR>'] = cmp.mapping.confirm { select = true },
-      --['<Tab>'] = cmp.mapping.select_next_item(),
-      --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+      -- ['<CR>'] = cmp.mapping.confirm { select = true },
+      -- ['<Tab>'] = cmp.mapping.select_next_item(),
+      -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
       sources = {
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
@@ -1028,29 +1029,6 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
-  -- Neotest - testing plugin
-  {
-    'nvim-neotest/neotest',
-    dependencies = {
-      'nvim-neotest/nvim-nio',
-      'nvim-lua/plenary.nvim',
-      'antoinemadec/FixCursorHold.nvim',
-      'nvim-treesitter/nvim-treesitter',
-      'nvim-neotest/neotest-jest',
-    },
-    config = function()
-      local nt = require 'neotest'
-      nt.setup {
-        adapters = {
-          require 'neotest-jest' {
-            jestCommand = 'npm test',
-          },
-        },
-      }
-      vim.keymap.set('n', '<F10>', '<cmd>lua require("neotest").run.run()<cr>', { desc = 'Run nearest test' })
-    end,
-  },
-
   -- DAP
   {
     'mfussenegger/nvim-dap',
@@ -1112,6 +1090,14 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fb', ':Telescope file_browser path=%:p:h select_buffer=true<CR>')
     end,
   },
+
+  --co — choose ours
+  --ct — choose theirs
+  --cb — choose both
+  --c0 — choose none
+  --]x — move to previous conflict
+  --[x — move to next conflict
+  { 'akinsho/git-conflict.nvim', version = '*', config = true },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
