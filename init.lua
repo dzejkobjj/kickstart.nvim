@@ -776,27 +776,10 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            vim.lsp.config[server_name].capabilities = server.capabilities
+            vim.lsp.config[server_name].settings = server.settings
           end,
         },
-      }
-
-      local lspconfig = require 'lspconfig'
-      local configs = require 'lspconfig/configs'
-
-      if not configs.golangcilsp then
-        configs.golangcilsp = {
-          default_config = {
-            cmd = { 'golangci-lint-langserver' },
-            root_dir = lspconfig.util.root_pattern('.git', 'go.mod'),
-            init_options = {
-              command = { 'golangci-lint', 'run', '--enable-all', '--disable', 'lll', '--out-format', 'json', '--issues-exit-code=1' },
-            },
-          },
-        }
-      end
-      lspconfig.golangci_lint_ls.setup {
-        filetypes = { 'go', 'gomod' },
       }
     end,
   },
@@ -1109,29 +1092,6 @@ require('lazy').setup({
   --]x — move to previous conflict
   --[x — move to next conflict
   { 'akinsho/git-conflict.nvim', version = '*', config = true },
-
-  -- Neotest - testing plugin
-  {
-    'nvim-neotest/neotest',
-    dependencies = {
-      'nvim-neotest/nvim-nio',
-      'nvim-lua/plenary.nvim',
-      'antoinemadec/FixCursorHold.nvim',
-      'nvim-treesitter/nvim-treesitter',
-      'nvim-neotest/neotest-jest',
-    },
-    config = function()
-      local nt = require 'neotest'
-      nt.setup {
-        adapters = {
-          require 'neotest-jest' {
-            jestCommand = 'npm test',
-          },
-        },
-      }
-      vim.keymap.set('n', '<F10>', '<cmd>lua require("neotest").run.run()<cr>', { desc = 'Run nearest test' })
-    end,
-  },
 
   -- DAP
   {
